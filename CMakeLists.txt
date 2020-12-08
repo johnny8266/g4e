@@ -178,6 +178,9 @@ target_include_directories(g4e
             src/external/CLI11              # Header only library for argument parsing
         )
 
+#copy the DVCS dir to build (if necessary)
+file(COPY /vol0/pwang-l/g4e/DVCS DESTINATION /vol0/pwang-l/g4e/build FOLLOW_SYMLINK_CHAIN)
+      
 # All sources and includes for the project are there:
 add_subdirectory(src)
 

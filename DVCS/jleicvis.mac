@@ -1,6 +1,6 @@
-/control/execute jleic.mac
+#/control/execute jleic.mac
 
-/run/initialize
+#/run/initialize
 
 #/vis/open VRML2FILE
 #/vis/drawVolume
@@ -49,11 +49,11 @@
 #/vis/viewer/set/viewpointThetaPhi 0. 0.
 #/vis/viewer/set/viewpointThetaPhi 0. 0.
 #/vis/viewer/set/viewpointThetaPhi 90.0000 89.99999999
-/vis/viewer/set/viewpointThetaPhi -135. -135.
+#/vis/viewer/set/viewpointThetaPhi -135. -135.
 #
 # Specify zoom value:
 #/vis/viewer/zoom 50.
-/vis/viewer/zoom 2.
+#/vis/viewer/zoom 2.
 #
 # Specify style (surface or wireframe):
 #/vis/viewer/set/style wireframe
@@ -137,7 +137,7 @@
 #/run/initialize
 #/run/beamOn 1
 #--------------CMS vis
-/vis/viewer/set/viewpointThetaPhi -30. -30.
+#/vis/viewer/set/viewpointThetaPhi -30. -30.
 #/vis/viewer/zoomTo 100
 
 #========= CMS view =========================
@@ -147,8 +147,8 @@
 /vis/viewer/set/style surface
 /vis/viewer/colourByDensity 1 g/cm3 .5 3 10
 #---------------------------------------------------
-/vis/viewer/zoom 0.5
-/vis/viewer/set/viewpointThetaPhi -90 -45 deg
+#/vis/viewer/zoom 0.5
+#/vis/viewer/set/viewpointThetaPhi -90 -45 deg
 /vis/viewer/zoom 100
 
 exit

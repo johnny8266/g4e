@@ -1,0 +1,38 @@
+#------------------------------------------------------------------------
+# Example macro. Process one of
+#------------------------------------------------------------------------
+
+# The default unit is mm, just type the size you want:)
+/g4e/ce_EMCAL/pwoWidth 15
+/g4e/ce_EMCAL/pwoOuterR 620 
+
+# Include default setup
+# Use jleic.mac for headless mode or jleicvis.mac for GUI visualization
+/control/execute jleicvis.mac
+
+# Select Beagle generator
+# Options are: particleGun hepmcAscii pythiaAscii beagle
+/generator/select pythiaAscii
+
+# Open file and run some MC file
+/generator/pythiaAscii/open /vol0/pwang-l/g4e/DVCS/dvcs_input.txt
+/generator/pythiaAscii/verbose 2
+
+
+#/g4e/ce_EMCAL/pwoWidth 1. cm
+
+/run/initialize
+#/g4e/ce_EMCAL/pwoOuterR 62. cm
+
+
+/vis/scene/add/axes 0 0 -4. 1. m
+
+/vis/filtering/trajectories/create/particleFilter
+/vis/filtering/trajectories/particleFilter-0/add gamma
+
+/vis/filtering/trajectories/particleFilter-0/invert true
+
+/vis/viewer/set/viewpointThetaPhi -180 0 deg	    
+
+/run/beamOn 1
+exit

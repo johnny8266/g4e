@@ -1,0 +1,24 @@
+#------------------------------------------------------------------------
+# Example macro. Process one of
+#------------------------------------------------------------------------
+
+# Include default setup
+# Use jleic.mac for headless mode or jleicvis.mac for GUI visualization
+/control/execute jleic.mac
+
+# Select Beagle generator
+# Options are: particleGun hepmcAscii pythiaAscii beagle
+/generator/select pythiaAscii
+
+# Open file and run some MC file
+/generator/pythiaAscii/open /home/pu-kai/mnt/g4e/DVCS/dvcs_input.txt
+/generator/pythiaAscii/verbose 2
+
+/run/initialize
+
+#/vis/filtering/trajectories/create/particleFilter
+#/vis/filtering/trajectories/particleFilter-0/add proton
+#/vis/filtering/trajectories/particleFilter-0/add e-
+#/vis/scene/add/axes 0 0 -4. 1 m
+
+/run/beamOn 6000

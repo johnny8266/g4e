@@ -1,6 +1,10 @@
 #/control/execute jleic.mac
 
+<<<<<<< HEAD
 #/run/initialize
+=======
+/run/initialize
+>>>>>>> 3aa2d35509a37e6a639eb26e8d3aab67c67d7b22
 
 #/vis/open VRML2FILE
 #/vis/drawVolume
@@ -11,7 +15,11 @@
 # Use this open statement to create an OpenGL view:
 ### This works  ->   
 #/control/manual vis
+<<<<<<< HEAD
 #/vis/list
+=======
+/vis/list
+>>>>>>> 3aa2d35509a37e6a639eb26e8d3aab67c67d7b22
 #/vis/open OGL 1000x800-0+0
 #/vis/open OGLI 600x600-0+0
 #/vis/open OGLIX 600x600-0+0
@@ -53,13 +61,21 @@
 #
 # Specify zoom value:
 #/vis/viewer/zoom 50.
+<<<<<<< HEAD
 #/vis/viewer/zoom 2.
+=======
+/vis/viewer/zoom 2.
+>>>>>>> 3aa2d35509a37e6a639eb26e8d3aab67c67d7b22
 #
 # Specify style (surface or wireframe):
 #/vis/viewer/set/style wireframe
 #
 # Draw coordinate axes:
+<<<<<<< HEAD
 #/vis/scene/add/axes 0 0 0 1 m
+=======
+/vis/scene/add/axes 0 0 -4. 1 m
+>>>>>>> 3aa2d35509a37e6a639eb26e8d3aab67c67d7b22
 #/vis/scene/add/magneticField 200
 #/vis/scene/add/magneticField 100 lightArrow
 ###/vis/scene/add/magneticField 100
@@ -78,8 +94,13 @@
 /vis/scene/add/hits
 #
 # To draw only gammas:
+<<<<<<< HEAD
 # /vis/filtering/trajectories/create/particleFilter
 # /vis/filtering/trajectories/particleFilter-0/add gamma
+=======
+#/vis/filtering/trajectories/create/particleFilter
+#/vis/filtering/trajectories/particleFilter-0/add gamma
+>>>>>>> 3aa2d35509a37e6a639eb26e8d3aab67c67d7b22
 #
 # To invert the above, drawing all particles except gammas,
 # keep the above two lines but also add:
@@ -87,6 +108,7 @@
 #
 # Many other options are available with /vis/modeling and /vis/filtering.
 # For example, to fSelectCmd colour by particle ID:
+<<<<<<< HEAD
 /vis/modeling/trajectories/create/drawByParticleID
 /vis/modeling/trajectories/list
 /vis/modeling/trajectories/drawByParticleID-0/set e- cyan
@@ -102,6 +124,23 @@
 /vis/modeling/trajectories/drawByParticleID-0/set proton blue
 /vis/modeling/trajectories/drawByParticleID-0/set neutron gray
 /vis/modeling/trajectories/drawByParticleID-0/set lambda green
+=======
+#/vis/modeling/trajectories/create/drawByParticleID
+#/vis/modeling/trajectories/list
+#/vis/modeling/trajectories/drawByParticleID-0/set e- cyan
+#/vis/modeling/trajectories/drawByParticleID-0/set e+ gray
+#/vis/modeling/trajectories/drawByParticleID-0/set kaon- magenta
+#/vis/modeling/trajectories/drawByParticleID-0/set kaon+ magenta
+#/vis/modeling/trajectories/drawByParticleID-0/set pion+ magenta
+#/vis/modeling/trajectories/drawByParticleID-0/set pion- magenta
+#/vis/modeling/trajectories/drawByParticleID-0/set muon- red
+#/vis/modeling/trajectories/drawByParticleID-0/set muon+ red
+#/vis/modeling/trajectories/drawByParticleID-0/set pion0 blue
+#/vis/modeling/trajectories/drawByParticleID-0/set gamma yellow
+#/vis/modeling/trajectories/drawByParticleID-0/set proton blue
+#/vis/modeling/trajectories/drawByParticleID-0/set neutron gray
+#/vis/modeling/trajectories/drawByParticleID-0/set lambda green
+>>>>>>> 3aa2d35509a37e6a639eb26e8d3aab67c67d7b22
 #/vis/modeling/trajectories/drawByParticleID-0/set e- yellow
 #
 # To superimpose all of the events from a given run:
@@ -147,8 +186,16 @@
 /vis/viewer/set/style surface
 /vis/viewer/colourByDensity 1 g/cm3 .5 3 10
 #---------------------------------------------------
+<<<<<<< HEAD
 #/vis/viewer/zoom 0.5
 #/vis/viewer/set/viewpointThetaPhi -90 -45 deg
 /vis/viewer/zoom 100
 
 exit
+=======
+/vis/viewer/zoom 0.5
+/vis/viewer/set/viewpointThetaPhi 135 -45 deg
+/vis/viewer/zoom 100
+
+#exit
+>>>>>>> 3aa2d35509a37e6a639eb26e8d3aab67c67d7b22

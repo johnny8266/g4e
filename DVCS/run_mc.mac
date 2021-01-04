@@ -2,6 +2,7 @@
 # Example macro. Process one of
 #------------------------------------------------------------------------
 
+<<<<<<< HEAD
 # The default unit is mm, just type the size you want:)
 /g4e/ce_EMCAL/pwoWidth 15
 /g4e/ce_EMCAL/pwoOuterR 620 
@@ -9,12 +10,18 @@
 # Include default setup
 # Use jleic.mac for headless mode or jleicvis.mac for GUI visualization
 /control/execute jleicvis.mac
+=======
+# Include default setup
+# Use jleic.mac for headless mode or jleicvis.mac for GUI visualization
+/control/execute jleic.mac
+>>>>>>> 3aa2d35509a37e6a639eb26e8d3aab67c67d7b22
 
 # Select Beagle generator
 # Options are: particleGun hepmcAscii pythiaAscii beagle
 /generator/select pythiaAscii
 
 # Open file and run some MC file
+<<<<<<< HEAD
 /generator/pythiaAscii/open /vol0/pwang-l/g4e/DVCS/dvcs_input.txt
 /generator/pythiaAscii/verbose 2
 
@@ -36,3 +43,16 @@
 
 /run/beamOn 1
 exit
+=======
+/generator/pythiaAscii/open /home/pu-kai/mnt/g4e/DVCS/dvcs_input.txt
+/generator/pythiaAscii/verbose 2
+
+/run/initialize
+
+#/vis/filtering/trajectories/create/particleFilter
+#/vis/filtering/trajectories/particleFilter-0/add proton
+#/vis/filtering/trajectories/particleFilter-0/add e-
+#/vis/scene/add/axes 0 0 -4. 1 m
+
+/run/beamOn 6000
+>>>>>>> 3aa2d35509a37e6a639eb26e8d3aab67c67d7b22

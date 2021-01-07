@@ -1,0 +1,17 @@
+#include <ROOT/RDataFrame.hxx>
+//using namespace ROOT::Experimental;
+
+void data_frame_test()
+{
+
+  TFile *file = TFile::Open("../build/g4e_output_3000events.root");
+  TTree *events = (TTree *) file->Get("events");
+
+  //  auto testcut = [](double x){return x>0.;};
+  //  auto testcut = [](ULong64_t x){return x>10;};
+  ROOT::RDataFrame TDF("events", file);
+  //  TDataFrame TDF("events", file);
+  auto h1 = TDF.Filter("hit_count > 100").Histo1D("hit_x");
+
+  h1->Draw();
+}

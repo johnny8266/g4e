@@ -64,17 +64,25 @@ void g4e_read()
 
   double mass_electron = 0.00051099895;
 
-  // XY of hits in ce_EMCAL
-  auto h2_xy_hits_elcap = new TH2I("xy_hits_elcap", "X,Y hits in Electron Endcap EMCAL", 200, -1500, 1500, 200, -1500, 1500);
-  auto h2_xy_hits_ffi_OFFM = new TH3I("xy_hits_ffi_OFFM", "X,Y hits in ffi OFFM", 50, -150, 150, 50, -150, 150, 50, 6900, 7000);
+
+  // =================================
+  // Histgram
+  // =================================
   
   auto h1_el_e_tot = new TH1D("rec_el_e_tot", "Energy of the recoil electron", 150, 0., 15.);
   h1_el_e_tot->GetXaxis()->SetTitle("E [GeV]");
   auto el_e_tot_roman = new TH1D("el_e_tot_roman", "el_e_tot_roman", 150, 0., 150.);
   el_e_tot_roman->GetXaxis()->SetTitle("E [GeV]");
+
+  auto h2_xy_hits_elcap = new TH2I("xy_hits_elcap", "X,Y hits in Electron Endcap EMCAL", 200, -1500, 1500, 200, -1500, 1500);
+
+  auto h3_xyz_hits_ffi = new TH3I("h3_xyz_hits_ffi", "X,Y,Z hits in ffi region", 50, -150, 150, 50, -150, 150, 30, 6940, 7000);
+  auto h3_xyz_hits_ci = new TH3I("h3_xyz_hits_ci", "Ion X,Y,Z hits in Endcap region", 50, -2500, 2500, 50, -2500, 2500, 130, 1500, 4100);
+
   
 
 
+  
   // (!!!) THIS EVENT LOOP METHOD IS SLOW IN ROOT INTERPRETTER
   // It is only for a showcase
 
@@ -83,7 +91,6 @@ void g4e_read()
   // https://root.cern.ch/root/html608/dir_b2d2b4e27d077f7d4f8f12bfa35378a6.html
   // And here is the TDataFrame
   // https://root.cern.ch/doc/v610/classROOT_1_1Experimental_1_1TDataFrame.html
-
   // Now we try to keep things simple for this example:
 
 
@@ -92,7 +99,8 @@ void g4e_read()
 
   while (fReader.Next())
     {
-      if(++events_numer > 4000) break; // The next operation may take time so we want to limit NEvents
+      if(++events_numer > 30) break; // The next operation may take time so we want to limit NEvents
+      //      cout << events_numer << "    ";
 
       if(events_numer%100 == 0)
 	cout << "Read " << events_numer << " th events..." << endl;
@@ -104,6 +112,7 @@ void g4e_read()
       // Read basic values
       auto hits_count = static_cast<size_t>(*hit_count.Get());         // Number of hits
       auto tracks_count = static_cast<size_t>(*trk_count.Get());       // Number of tracks
+      //      cout << "Hit counts: " << hits_count << " || Track counts: " << tracks_count << endl;
 
 
       
@@ -111,36 +120,48 @@ void g4e_read()
       // Iterate over hits
       // =============================
       
-      for(size_t i=0; i < hits_count; i++)
+      for(size_t i = 0 ; i < hits_count ; i++)
 	{
 	  // This is is of a track that made this hit
 	  uint64_t parent_track_id = static_cast<uint64_t>(hit_trk_id[i]);
-            
+
+	  // This is is of a track that made this hit
+	  uint64_t Pid = static_cast<uint64_t>(hit_parent_trk_id[i]);
+	  
+	  // This is a volume name of a hit
+	  std::string vol_name = static_cast<std::string>(hit_vol_name[i]);
+
 	  double x = hit_x[i];
 	  double y = hit_y[i];
 	  double z = hit_z[i];
             
 	  double e_loss = hit_e_loss[i];
             
-	  // This is a volume name of a hit
-	  std::string vol_name = static_cast<std::string>(hit_vol_name[i]);
-        
+	  /*
 	  // Check that the name starts with "ci_EMCAL"
 	  if(vol_name.rfind("ci_EMCAL", 0) == 0)
 	    {
 	      track_ids_in_ecap_emcal.insert(parent_track_id);
 	      h2_xy_hits_elcap->Fill(x, y);
 	    }
-	  //	  if(vol_name.rfind("ffi_RPOT_D3", 0) == 0)
-	  //	  if(vol_name.rfind("cb_CTD", 0) == 0)
+	  
 	  if(vol_name.rfind("ffi", 0) == 0)
 	    {
 	      track_ids_in_ffi_RPOTS.insert(parent_track_id);
 	      if(trk_parent_id[i] != 0) continue;
-	      h2_xy_hits_ffi_OFFM->Fill(x, y, z);
-	      //	      cout << z << endl;
+	      h3_xyz_hits_ffi->Fill(x, y, z);
 	    }
-	  
+	  */
+	  if(vol_name.rfind("ffi", 0) == 0)
+	    {
+	      cout << hit_vol_name[i] << "  " << z << endl;
+	      track_ids_in_ffi_RPOTS.insert(parent_track_id);
+	      //	      cout << parent_track_id << "  " << Pid << endl;
+	      if(Pid != 2212) continue;
+	      h3_xyz_hits_ffi->Fill(x, y, z);
+	      //	      cout << x << " " << y << endl;
+	    }
+	  	  
 	}
 
 
@@ -151,7 +172,7 @@ void g4e_read()
       
       double px, py, pz;
       TLorentzVector lv;
-      for(size_t i = 0 ; i < hits_count ; i++)
+      for(size_t i = 0 ; i < tracks_count ; i++)
 	{
 	  //	  if(trk_pdg[i] != 11) continue;       // Take only electrons for now
 	  if(trk_parent_id[i] != 0) continue;  // Take only particles from a generator
@@ -170,6 +191,7 @@ void g4e_read()
 	      h1_el_e_tot->Fill(lv.Energy());
 	    }
 
+	  /*
 	  // Check track has hits in Roman Pots
 	  if( track_ids_in_ffi_RPOTS.count(trk_id[i]) )
 	    {
@@ -183,7 +205,7 @@ void g4e_read()
 	      lv.SetXYZM(px, py, pz, mass_electron);
 	      el_e_tot_roman->Fill(lv.Energy());
 	    }
-	  
+	  */
 	}
     }
 
@@ -193,6 +215,7 @@ void g4e_read()
   
   auto c2 = new TCanvas("c2","The Canvas Title",800,800);
   //  h2_xy_hits_elcap->Draw("colorz");
-  h2_xy_hits_ffi_OFFM->Draw("box");
+  h3_xyz_hits_ffi->Draw("box");
+  //  h3_xyz_hits_ci->Draw("box");
 
 }

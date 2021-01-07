@@ -1,3 +1,19 @@
+// =================================================================================
+//
+// (!!!) THIS EVENT LOOP METHOD IS SLOW IN ROOT INTERPRETTER
+// It is only for a showcase
+
+// Event loop (use pool or fancier TDataFrame for multithreaded processing, )
+// Here is the examples of multicore usage:
+// https://root.cern.ch/root/html608/dir_b2d2b4e27d077f7d4f8f12bfa35378a6.html
+// And here is the TDataFrame
+// https://root.cern.ch/doc/v610/classROOT_1_1Experimental_1_1TDataFrame.html
+
+// Now we try to keep things simple for this example:
+
+// =================================================================================
+#include <ROOT/RDataFrame.hxx>
+//using namespace ROOT::Experimental;
 
 void g4e_read()
 {
@@ -5,6 +21,14 @@ void g4e_read()
   TFile *file = TFile::Open("../build/g4e_output_3000events.root");
   TTree *events = (TTree *) file->Get("events");
 
+  //  auto testcut = [](double x){return x>0.;};
+  //  auto testcut = [](ULong64_t x){return x>10;};
+  ROOT::RDataFrame TDF("events", file);
+  //  TDataFrame TDF("events", file);
+  auto h1 = TDF.Filter("hit_count > 100").Histo1D("hit_x");
+
+  h1->Draw();
+  /*
   TTreeReader fReader("events", file);
 
   // Readers to access the data (delete the ones you do not need).
@@ -80,27 +104,14 @@ void g4e_read()
   auto h3_xyz_hits_ci = new TH3I("h3_xyz_hits_ci", "Ion X,Y,Z hits in Endcap region", 50, -2500, 2500, 50, -2500, 2500, 130, 1500, 4100);
 
   
-
-
-  
-  // (!!!) THIS EVENT LOOP METHOD IS SLOW IN ROOT INTERPRETTER
-  // It is only for a showcase
-
-  // Event loop (use pool or fancier TDataFrame for multithreaded processing, )
-  // Here is the examples of multicore usage:
-  // https://root.cern.ch/root/html608/dir_b2d2b4e27d077f7d4f8f12bfa35378a6.html
-  // And here is the TDataFrame
-  // https://root.cern.ch/doc/v610/classROOT_1_1Experimental_1_1TDataFrame.html
-  // Now we try to keep things simple for this example:
-
-
-  // Loop over all entries of the TTree or TChain.
   size_t events_numer = 0;
 
+  //===============================================
+  // Loop the Event
+  //===============================================
+  
   while (fReader.Next())
     {
-      if(++events_numer > 30) break; // The next operation may take time so we want to limit NEvents
-      //      cout << events_numer << "    ";
 
       if(events_numer%100 == 0)
 	cout << "Read " << events_numer << " th events..." << endl;
@@ -112,59 +123,48 @@ void g4e_read()
       // Read basic values
       auto hits_count = static_cast<size_t>(*hit_count.Get());         // Number of hits
       auto tracks_count = static_cast<size_t>(*trk_count.Get());       // Number of tracks
-      //      cout << "Hit counts: " << hits_count << " || Track counts: " << tracks_count << endl;
-
-
       
       // =============================
-      // Iterate over hits
+      // Primary Proton event
       // =============================
-      
-      for(size_t i = 0 ; i < hits_count ; i++)
+
+      for(size_t p = 0 ; p < primary_count ; p++)  // iterate the primary event 
 	{
-	  // This is is of a track that made this hit
-	  uint64_t parent_track_id = static_cast<uint64_t>(hit_trk_id[i]);
+	  if(gen_prt_pdg[p] == 2212)
+	    {
+	      //	      cout << gen_prt_pdg[p] << "  " << gen_prt_tot_mom[p] << "  " << gen_prt_tot_mom[p] * gen_prt_dir_x[p] << "  " << gen_prt_tot_mom[p] * gen_prt_dir_y[p] << "  " << gen_prt_tot_mom[p] * gen_prt_dir_z[p] << "  " << gen_prt_tot_e[p] << endl;
+	      
+	      for(size_t i = 0 ; i < hits_count ; i++)
+		{
+		  // This is is of a track that made this hit
+		  uint64_t parent_track_id = static_cast<uint64_t>(hit_trk_id[i]);
 
-	  // This is is of a track that made this hit
-	  uint64_t Pid = static_cast<uint64_t>(hit_parent_trk_id[i]);
-	  
-	  // This is a volume name of a hit
-	  std::string vol_name = static_cast<std::string>(hit_vol_name[i]);
-
-	  double x = hit_x[i];
-	  double y = hit_y[i];
-	  double z = hit_z[i];
+		  // This is a volume name of a hit
+		  std::string vol_name = static_cast<std::string>(hit_vol_name[i]);
+		  
+		  double x = hit_x[i], y = hit_y[i], z = hit_z[i];            
+		  double e_loss = hit_e_loss[i];
             
-	  double e_loss = hit_e_loss[i];
-            
-	  /*
-	  // Check that the name starts with "ci_EMCAL"
-	  if(vol_name.rfind("ci_EMCAL", 0) == 0)
-	    {
-	      track_ids_in_ecap_emcal.insert(parent_track_id);
-	      h2_xy_hits_elcap->Fill(x, y);
+        
+		  // Check that the name starts with "ci_EMCAL"
+		  if(vol_name.rfind("ci_EMCAL", 0) == 0)
+		    {
+		      track_ids_in_ecap_emcal.insert(parent_track_id);
+		      h2_xy_hits_elcap->Fill(x, y);
+		    }
+		  // 
+		  if(vol_name.rfind("ffi", 0) == 0)
+		    {
+		      //		      track_ids_in_ffi_RPOTS.insert(parent_track_id);
+		      //		      if(trk_parent_id[i] != 0) continue;
+		      //		      h2_xy_hits_ffi_OFFM->Fill(x, y, z);
+		      //	      cout << z << endl;
+		      for(int tc = 0 ; tc < track_count ; tc++)
+		      
+		    }
+		}
 	    }
-	  
-	  if(vol_name.rfind("ffi", 0) == 0)
-	    {
-	      track_ids_in_ffi_RPOTS.insert(parent_track_id);
-	      if(trk_parent_id[i] != 0) continue;
-	      h3_xyz_hits_ffi->Fill(x, y, z);
-	    }
-	  */
-	  if(vol_name.rfind("ffi", 0) == 0)
-	    {
-	      cout << hit_vol_name[i] << "  " << z << endl;
-	      track_ids_in_ffi_RPOTS.insert(parent_track_id);
-	      //	      cout << parent_track_id << "  " << Pid << endl;
-	      if(Pid != 2212) continue;
-	      h3_xyz_hits_ffi->Fill(x, y, z);
-	      //	      cout << x << " " << y << endl;
-	    }
-	  	  
 	}
-
-
       
       // =============================
       // Iterate over tracks
@@ -215,7 +215,4 @@ void g4e_read()
   
   auto c2 = new TCanvas("c2","The Canvas Title",800,800);
   //  h2_xy_hits_elcap->Draw("colorz");
-  h3_xyz_hits_ffi->Draw("box");
-  //  h3_xyz_hits_ci->Draw("box");
-
 }

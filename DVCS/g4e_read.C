@@ -27,7 +27,7 @@ void g4e_read()
   //  TDataFrame TDF("events", file);
   auto h1 = TDF.Filter("hit_count > 100").Histo1D("hit_x");
 
-  h1->Draw();
+  h1->DrawCopy();
   /*
   TTreeReader fReader("events", file);
 
@@ -191,7 +191,7 @@ void g4e_read()
 	      h1_el_e_tot->Fill(lv.Energy());
 	    }
 
-	  /*
+	  
 	  // Check track has hits in Roman Pots
 	  if( track_ids_in_ffi_RPOTS.count(trk_id[i]) )
 	    {
@@ -205,10 +205,10 @@ void g4e_read()
 	      lv.SetXYZM(px, py, pz, mass_electron);
 	      el_e_tot_roman->Fill(lv.Energy());
 	    }
-	  */
+	  
 	}
     }
-
+  */
   //  auto c1 = new TCanvas("c1","The Canvas Title",800,800);
   //  h1_el_e_tot->Draw();
   //  el_e_tot_roman->Draw();

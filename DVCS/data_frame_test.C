@@ -6,7 +6,7 @@ using vectorD = vector<double>;
 
 void data_frame_test()
 {
-  ROOT::RDataFrame TDF("events", "../build/g4e_output_3000events.root", {"event_id"});
+  ROOT::RDataFrame TDF("events", "../build/g4e_output_3000events.root");
  
   //  auto cutQ2 = [](double Q2) { return Q2 < 5.; };
   auto cutQ2 = [](ULong64_t event_id) { return event_id > 5.; };

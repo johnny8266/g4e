@@ -19,7 +19,7 @@ void g4e_read()
 {
 
   //  TFile *file = TFile::Open("../build/g4e_output_10k_events.root");
-  TFile *file = TFile::Open("../build/g4e_output.root");
+  TFile *file = TFile::Open("../build/g4e_output_10k_events_crossing_angle.root");
   TTree *events = (TTree *) file->Get("events");
 
   TTreeReader fReader("events", file);
@@ -85,19 +85,22 @@ void g4e_read()
   // =================================
   // Histgram
   // =================================
-
+  TFile save_pic("plots.root", "RECREATE");
   auto electron_DPx_primary_recontruct = new TH1F("electron_DPx_primary_recontruct", "electron_DPx_primary_recontruct", 200, -0.1, 0.1);
   auto electron_DPz_primary_recontruct = new TH1F("electron_DPz_primary_recontruct", "electron_DPz_primary_recontruct", 200, -0.1, 0.1);
   auto photon_DPx_primary_recontruct = new TH1F("photon_DPx_primary_recontruct", "photon_DPx_primary_recontruct", 200, -0.1, 0.1);
   auto photon_DPy_primary_recontruct = new TH1F("photon_DPy_primary_recontruct", "photon_DPy_primary_recontruct", 200, -0.1, 0.1);
   auto photon_DPz_primary_recontruct = new TH1F("photon_DPz_primary_recontruct", "photon_DPz_primary_recontruct", 200, -0.1, 0.1);
-  auto h1_el_e_tot = new TH1D("rec_el_e_tot", "Energy of the recoil electron", 150, 0., 15.);
-  auto el_e_tot_roman = new TH1D("el_e_tot_roman", "el_e_tot_roman", 150, 0., 150.);
+  //  auto h1_el_e_tot = new TH1D("rec_el_e_tot", "Energy of the recoil electron", 150, 0., 15.);
+  auto h_x_hits_RPOT = new TH1F("h_x_hits_RPOT", "X hits in RPOT", 150, 700, 1000);
+  auto h_y_hits_RPOT = new TH1F("h_y_hits_RPOT", "Y hits in RPOT", 40, -40, 40);
+  auto h_z_hits_RPOT = new TH1F("h_z_hits_RPOT", "Z hits in RPOT", 55, 26090, 26200);
+  auto h1_eloss_proton_RPOT = new TH1F("h1_eloss_proton_RPOT", "h1_eloss_proton_RPOT", 80, 0., 0.8);
 
-  auto h2_xy_hits_elcap = new TH2I("xy_hits_elcap", "X,Y hits in Electron Endcap EMCAL", 200, -1500, 1500, 200, -1500, 1500);
-
-  auto h3_xyz_hits_ffi = new TH3I("h3_xyz_hits_ffi", "X,Y,Z hits in ffi region", 50, -150, 150, 50, -150, 150, 30, 6940, 7000);
-  auto h3_xyz_hits_ci = new TH3I("h3_xyz_hits_ci", "Ion X,Y,Z hits in Endcap region", 50, -2500, 2500, 50, -2500, 2500, 130, 1500, 4100);
+  //  auto h2_xy_hits_elcap = new TH2I("xy_hits_elcap", "X,Y hits in Electron Endcap EMCAL", 200, -1500, 1500, 200, -1500, 1500);
+  auto h2_eloss_proton_RPOT = new TH2F("h2_eloss_proton_RPOT", "h2_eloss_proton_RPOT", 4, 0, 4, 80, 0., 0.8);
+  
+  auto h3_xyz_hits_RPOT = new TH3F("h3_xyz_hits_RPOT", "X,Y,Z hits in RPOT", 150, 700, 1000, 40, -40, 40, 55, 26090, 26200);
 
   
   size_t events_numer = 0;
@@ -108,7 +111,7 @@ void g4e_read()
   
   while (fReader.Next())
     {
-      if(++events_numer > 6500)
+      if(++events_numer > 7000)
 	break;
       
       if(events_numer%100 == 0)
@@ -152,13 +155,31 @@ void g4e_read()
 	      //	      h2_xy_hits_elcap->Fill(x, y);
 	    }
 		  
-	  
-	    if(vol_name.rfind("ffi_RPOT", 0) == 0)
+	  if(vol_name.rfind("ffi_RPOT_D2_lay_Phys_0", 0) == 0)
+	    h2_eloss_proton_RPOT->Fill(0., (hit_e_loss[i] * 1000.));
+
+	  if(vol_name.rfind("ffi_RPOT_D2_lay_Phys_1", 0) == 0)
+	    h2_eloss_proton_RPOT->Fill(1., (hit_e_loss[i] * 1000.));
+
+	  if(vol_name.rfind("ffi_RPOT_D2_lay_Phys_2", 0) == 0)
+	    h2_eloss_proton_RPOT->Fill(2., (hit_e_loss[i] * 1000.));
+
+	  if(vol_name.rfind("ffi_RPOT_D2_lay_Phys_3", 0) == 0)
+	    h2_eloss_proton_RPOT->Fill(3., (hit_e_loss[i] * 1000.));
+	    
+	  if(vol_name.rfind("ffi_RPOT_D2_lay", 0) == 0)
 	    {
 	      track_ids_in_ffi_RPOTS.insert(hit_track_id);
 	      //	      if(trk_parent_id[i] != 0) continue;
-	      //	      h2_xy_hits_ffi_OFFM->Fill(x, y, z);
-	      cout << trk_pdg[i] << "  " << trk_parent_id[i] << "  " << vol_name << "  " << z << endl;
+	      if(hit_trk_id[i] == 3)
+		{
+		  h_x_hits_RPOT->Fill(x);
+		  h_y_hits_RPOT->Fill(y);
+		  h_z_hits_RPOT->Fill(z);
+		  h3_xyz_hits_RPOT->Fill(x, y, z);
+		  h1_eloss_proton_RPOT->Fill( (hit_e_loss[i] * 1000.) );
+		}
+	      //	      cout << hit_trk_id[i] << "        " << hit_ptr_id[i] << "        " << hit_parent_trk_id[i] << "        " << vol_name << "        " << x << "  " << y << "  " <<  z << endl;
 	    }
 	    
 	}
@@ -197,7 +218,7 @@ void g4e_read()
 	      pz = trk_vtx_dir_z[i] * trk_mom[i];
 
 	      lv.SetXYZM(px, py, pz, mass_electron);
-	      h1_el_e_tot->Fill(lv.Energy());
+	      //	      h1_el_e_tot->Fill(lv.Energy());
 
 	      if(trk_pdg[i] == 11)
 		{
@@ -223,9 +244,26 @@ void g4e_read()
   // Draw the Results
   // ======================================
   
-  //  auto c1 = new TCanvas("c1","The Canvas Title",800,800);
-  //  h1_el_e_tot->Draw();
-  //  el_e_tot_roman->Draw();
+  auto c1 = new TCanvas("c1","The Canvas Title",800,800);
+  h2_eloss_proton_RPOT->GetXaxis()->SetNdivisions(4, kTRUE);
+  h2_eloss_proton_RPOT->Draw("colorz");
+
+  h1_eloss_proton_RPOT->GetXaxis()->SetTitle("[MeV]");
+  h1_eloss_proton_RPOT->Draw();
+
+  h_x_hits_RPOT->Draw();
+
+  h_y_hits_RPOT->Draw();
+  
+  h_z_hits_RPOT->Draw();
+
+  h3_xyz_hits_RPOT->GetXaxis()->SetTitle("X");
+  h3_xyz_hits_RPOT->GetXaxis()->CenterTitle();
+  h3_xyz_hits_RPOT->GetYaxis()->SetTitle("Y");
+  h3_xyz_hits_RPOT->GetYaxis()->CenterTitle();
+  h3_xyz_hits_RPOT->GetZaxis()->SetTitle("Z");
+  h3_xyz_hits_RPOT->GetZaxis()->CenterTitle();
+  h3_xyz_hits_RPOT->Draw("box");
   
   auto c2 = new TCanvas("c2","The Canvas Title", 1200, 800);
   c2->Divide(3,2);
@@ -245,7 +283,8 @@ void g4e_read()
   c2->cd(6);
   electron_DPz_primary_recontruct->GetXaxis()->SetTitle("PZ0 - PZ1");
   electron_DPz_primary_recontruct->Draw();
+  
 
-
-  //  h2_xy_hits_elcap->Draw("colorz");
+  save_pic.Write();
+  save_pic.Close();
 }

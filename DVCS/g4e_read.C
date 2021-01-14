@@ -80,17 +80,21 @@ void g4e_read()
   TTreeReaderArray<double>        gen_vtx_weight = {fReader, "gen_vtx_weight"};
 
   double mass_electron = 0.00051099895;
+  double mass_proton = 0.0938271998;
 
-
+  //  TFile save_pic("plots.root", "RECREATE");
+  
   // =================================
   // Histgram
   // =================================
-  TFile save_pic("plots.root", "RECREATE");
   auto electron_DPx_primary_recontruct = new TH1F("electron_DPx_primary_recontruct", "electron_DPx_primary_recontruct", 200, -0.1, 0.1);
   auto electron_DPz_primary_recontruct = new TH1F("electron_DPz_primary_recontruct", "electron_DPz_primary_recontruct", 200, -0.1, 0.1);
   auto photon_DPx_primary_recontruct = new TH1F("photon_DPx_primary_recontruct", "photon_DPx_primary_recontruct", 200, -0.1, 0.1);
   auto photon_DPy_primary_recontruct = new TH1F("photon_DPy_primary_recontruct", "photon_DPy_primary_recontruct", 200, -0.1, 0.1);
   auto photon_DPz_primary_recontruct = new TH1F("photon_DPz_primary_recontruct", "photon_DPz_primary_recontruct", 200, -0.1, 0.1);
+  auto proton_DPx_primary_recontruct = new TH1F("proton_DPx_primary_recontruct", "proton_DPx_primary_recontruct", 200, -0.1, 0.1);
+  auto proton_DPy_primary_recontruct = new TH1F("proton_DPy_primary_recontruct", "proton_DPy_primary_recontruct", 200, -0.1, 0.1);
+  auto proton_DPz_primary_recontruct = new TH1F("proton_DPz_primary_recontruct", "proton_DPz_primary_recontruct", 200, -0.1, 0.1);
   //  auto h1_el_e_tot = new TH1D("rec_el_e_tot", "Energy of the recoil electron", 150, 0., 15.);
   auto h_x_hits_RPOT = new TH1F("h_x_hits_RPOT", "X hits in RPOT", 150, 700, 1000);
   auto h_y_hits_RPOT = new TH1F("h_y_hits_RPOT", "Y hits in RPOT", 40, -40, 40);
@@ -135,13 +139,12 @@ void g4e_read()
 	{
 	  // This is is of a track that made this hit
 	  uint64_t hit_track_id = static_cast<uint64_t>(hit_trk_id[i]);
-
 	  uint64_t hit_parent_track_id = static_cast<uint64_t>(hit_parent_trk_id[i]);
 	  
 	  // This is a volume name of a hit
 	  std::string vol_name = static_cast<std::string>(hit_vol_name[i]);
 		  
-	  double x = hit_x[i], y = hit_y[i], z = hit_z[i];            
+	  double x = hit_x[i], y = hit_y[i], z = hit_z[i];
 	  double e_loss = hit_e_loss[i];
             
         
@@ -166,11 +169,11 @@ void g4e_read()
 
 	  if(vol_name.rfind("ffi_RPOT_D2_lay_Phys_3", 0) == 0)
 	    h2_eloss_proton_RPOT->Fill(3., (hit_e_loss[i] * 1000.));
-	    
-	  if(vol_name.rfind("ffi_RPOT_D2_lay", 0) == 0)
+
+	  //	  if(vol_name.rfind("ffi_RPOT_D2_lay", 0) == 0)
+	  if(vol_name.rfind("ffi", 0) == 0)
 	    {
 	      track_ids_in_ffi_RPOTS.insert(hit_track_id);
-	      //	      if(trk_parent_id[i] != 0) continue;
 	      if(hit_trk_id[i] == 3)
 		{
 		  h_x_hits_RPOT->Fill(x);
@@ -188,7 +191,7 @@ void g4e_read()
       // Iterate over tracks
       // =============================
       
-      double px, py, pz, epx0, epy0, epz0, gpx0, gpy0, gpz0;
+      double px, py, pz, epx0, epy0, epz0, gpx0, gpy0, gpz0, ppx0, ppy0, ppz0;
       TLorentzVector lv;
       
       epx0 = gen_prt_dir_x[0] * gen_prt_tot_mom[0];
@@ -198,6 +201,10 @@ void g4e_read()
       gpx0 = gen_prt_dir_x[1] * gen_prt_tot_mom[1];
       gpy0 = gen_prt_dir_y[1] * gen_prt_tot_mom[1];
       gpz0 = gen_prt_dir_z[1] * gen_prt_tot_mom[1];
+
+      ppx0 = gen_prt_dir_x[2] * gen_prt_tot_mom[2];
+      ppy0 = gen_prt_dir_y[2] * gen_prt_tot_mom[2];
+      ppz0 = gen_prt_dir_z[2] * gen_prt_tot_mom[2];
       	    
       //      cout << px0 << " " << py0 << " " << pz0 << endl;
 
@@ -206,8 +213,23 @@ void g4e_read()
 	  //	  if(trk_pdg[i] != 11) continue;       // Take only electrons for now
 	  //	  if(trk_pdg[i] != 22) continue;       // Take only photons for now
 	  if(trk_parent_id[i] != 0) continue;  // Take only particles from a generator
-                
-	  // Check track has hits in ce_EMCAL
+
+	  // Check track has hits in far ion region
+	  if( track_ids_in_ffi_RPOTS.count( trk_id[i]) )
+	    {
+	      px = trk_vtx_dir_x[i] * trk_mom[i];
+	      py = trk_vtx_dir_y[i] * trk_mom[i];
+	      pz = trk_vtx_dir_z[i] * trk_mom[i];
+
+	      lv.SetXYZM(px, py, pz, mass_proton);
+
+	      proton_DPx_primary_recontruct->Fill(ppx0 - lv.Px());
+	      proton_DPy_primary_recontruct->Fill(ppy0 - lv.Py());
+	      proton_DPz_primary_recontruct->Fill(ppz0 - lv.Pz());
+	    }
+		    
+	  
+	  // Check track has hits in eletron or inner barrel region
 	  if( track_ids_in_ecap_emcal.count( trk_id[i]) )
 	    {
 	      //continue;
@@ -263,28 +285,38 @@ void g4e_read()
   h3_xyz_hits_RPOT->GetYaxis()->CenterTitle();
   h3_xyz_hits_RPOT->GetZaxis()->SetTitle("Z");
   h3_xyz_hits_RPOT->GetZaxis()->CenterTitle();
-  h3_xyz_hits_RPOT->Draw("box");
+  //  h3_xyz_hits_RPOT->Draw("box");
+
   
   auto c2 = new TCanvas("c2","The Canvas Title", 1200, 800);
   c2->Divide(3,2);
-
   c2->cd(1);
   photon_DPx_primary_recontruct->GetXaxis()->SetTitle("PX0 - PX1");
-  photon_DPx_primary_recontruct->Draw();
+  //  photon_DPx_primary_recontruct->Draw();
   c2->cd(2);
   photon_DPy_primary_recontruct->GetXaxis()->SetTitle("PY0 - PY1");
-  photon_DPy_primary_recontruct->Draw();
+  //  photon_DPy_primary_recontruct->Draw();
   c2->cd(3);
   photon_DPz_primary_recontruct->GetXaxis()->SetTitle("PZ0 - PZ1");
-  photon_DPz_primary_recontruct->Draw();
+  //  photon_DPz_primary_recontruct->Draw();
   c2->cd(4);
   electron_DPx_primary_recontruct->GetXaxis()->SetTitle("PX0 - PX1");
-  electron_DPx_primary_recontruct->Draw();
+  //  electron_DPx_primary_recontruct->Draw();
   c2->cd(6);
   electron_DPz_primary_recontruct->GetXaxis()->SetTitle("PZ0 - PZ1");
   electron_DPz_primary_recontruct->Draw();
-  
 
-  save_pic.Write();
-  save_pic.Close();
+  
+  auto c3 = new TCanvas("c3","The Canvas Title", 1200, 400);
+  c3->Divide(3, 1);
+  c3->cd(1);
+  proton_DPx_primary_recontruct->Draw();
+  c3->cd(2);
+  proton_DPy_primary_recontruct->Draw();
+  c3->cd(3);
+  proton_DPz_primary_recontruct->Draw();
+    
+  
+  //  save_pic.Write();
+  //  save_pic.Close();
 }

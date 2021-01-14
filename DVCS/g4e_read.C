@@ -82,7 +82,7 @@ void g4e_read()
   double mass_electron = 0.00051099895;
   double mass_proton = 0.0938271998;
 
-  //  TFile save_pic("plots.root", "RECREATE");
+  TFile save_pic("plots.root", "RECREATE");
   
   // =================================
   // Histgram
@@ -317,6 +317,6 @@ void g4e_read()
   proton_DPz_primary_recontruct->Draw();
     
   
-  //  save_pic.Write();
-  //  save_pic.Close();
+  save_pic.Write();
+  save_pic.Close();
 }
